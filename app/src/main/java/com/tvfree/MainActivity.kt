@@ -2,6 +2,7 @@ package com.tvfree
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.http.SslError
 import android.os.Bundle
@@ -11,7 +12,10 @@ import android.view.WindowManager
 import android.webkit.*
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
+import java.io.ByteArrayInputStream
 
 class MainActivity : Activity() {
 
@@ -22,25 +26,21 @@ class MainActivity : Activity() {
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
     private var originalSystemUiVisibility = 0
 
-    // Referencias a los 14 botones de favoritos
-    private lateinit var btnHome: Button
-    private lateinit var btnAztecaUno: Button
-    private lateinit var btnAzteca7: Button
+    // Referencias a los botones de favoritos (Solo los declarados en activity_main.xml)
     private lateinit var btnCanal5: Button
+    private lateinit var btnAzteca7: Button
+    private lateinit var btnEspnMx: Button
     private lateinit var btnLasEstrellas: Button
-    private lateinit var btnTudn: Button
-    private lateinit var btnEspn: Button
-    private lateinit var btnEspn2: Button
-    private lateinit var btnEspn3: Button
+    private lateinit var btnAztecaUno: Button
+    private lateinit var btnForoTv: Button
+    private lateinit var btnMilenioTv: Button
+    private lateinit var btnTelemundo: Button
+    private lateinit var btnTudnUsa: Button
     private lateinit var btnFoxSports: Button
-    private lateinit var btnFoxSports2: Button
-    private lateinit var btnFoxPremium: Button
-    private lateinit var btnDaznLaliga: Button
-    private lateinit var btnMovistarCampeones: Button
+    private lateinit var btnUnivision: Button
 
     companion object {
         // Enlaces de inicio de los 11 Canales Favoritos
-        const val HOME_URL = "https://telefullhd.net/"
         const val CANAL_5_URL = "https://telefullhd.net/en-vivo/canal-5/"
         const val AZTECA_7_URL = "https://telefullhd.net/en-vivo/azteca-7/"
         const val ESPN_MX_URL = "https://www.gabotv.com/?movies=espn"
@@ -75,18 +75,17 @@ class MainActivity : Activity() {
         webView      = findViewById(R.id.webView)
 
         // Enlazar los 11 botones favoritos desde el layout
-        btnHome = findViewById(R.id.btn_home)
-        btnAztecaUno = findViewById(R.id.btn_azteca_uno)
-        btnAzteca7 = findViewById(R.id.btn_azteca_7)
         btnCanal5 = findViewById(R.id.btn_canal_5)
+        btnAzteca7 = findViewById(R.id.btn_azteca_7)
+        btnEspnMx = findViewById(R.id.btn_espn_mx)
         btnLasEstrellas = findViewById(R.id.btn_las_estrellas)
-        btnTudn = findViewById(R.id.btn_tudn_usa) // Mapeado a TUDN USA
-        btnEspn = findViewById(R.id.btn_espn_mx) // Mapeado a ESPN MX
-        btnEspn2 = findViewById(R.id.btn_foro_tv) // Mapeado a Foro TV
-        btnEspn3 = findViewById(R.id.btn_milenio_tv) // Mapeado a Milenio TV
-        btnFoxSports = findViewById(R.id.btn_telemundo) // Mapeado a Telemundo
-        btnFoxSports2 = findViewById(R.id.btn_fox_sports) // Mapeado a Fox Sports MX
-        btnFoxPremium = findViewById(R.id.btn_univision) // Mapeado a Univision
+        btnAztecaUno = findViewById(R.id.btn_azteca_uno)
+        btnForoTv = findViewById(R.id.btn_foro_tv)
+        btnMilenioTv = findViewById(R.id.btn_milenio_tv)
+        btnTelemundo = findViewById(R.id.btn_telemundo)
+        btnTudnUsa = findViewById(R.id.btn_tudn_usa)
+        btnFoxSports = findViewById(R.id.btn_fox_sports)
+        btnUnivision = findViewById(R.id.btn_univision)
 
         setupWebView()
         setupFavorites()
@@ -99,8 +98,8 @@ class MainActivity : Activity() {
 
     private fun setupFavorites() {
         val buttons = listOf(
-            btnHome, btnAztecaUno, btnAzteca7, btnCanal5, btnLasEstrellas, btnTudn,
-            btnEspn, btnEspn2, btnEspn3, btnFoxSports, btnFoxSports2, btnFoxPremium
+            btnCanal5, btnAzteca7, btnEspnMx, btnLasEstrellas, btnAztecaUno,
+            btnForoTv, btnMilenioTv, btnTelemundo, btnTudnUsa, btnFoxSports, btnUnivision
         )
 
         fun selectFavorite(selectedButton: Button, url: String) {
@@ -112,18 +111,17 @@ class MainActivity : Activity() {
             webView.requestFocus()
         }
 
-        btnHome.setOnClickListener { selectFavorite(btnHome, HOME_URL) }
         btnCanal5.setOnClickListener { selectFavorite(btnCanal5, CANAL_5_URL) }
         btnAzteca7.setOnClickListener { selectFavorite(btnAzteca7, AZTECA_7_URL) }
-        btnEspn.setOnClickListener { selectFavorite(btnEspn, ESPN_MX_URL) }
+        btnEspnMx.setOnClickListener { selectFavorite(btnEspnMx, ESPN_MX_URL) }
         btnLasEstrellas.setOnClickListener { selectFavorite(btnLasEstrellas, LAS_ESTRELLAS_URL) }
         btnAztecaUno.setOnClickListener { selectFavorite(btnAztecaUno, AZTECA_UNO_URL) }
-        btnEspn2.setOnClickListener { selectFavorite(btnEspn2, FORO_TV_URL) }
-        btnEspn3.setOnClickListener { selectFavorite(btnEspn3, MILENIO_TV_URL) }
-        btnFoxSports.setOnClickListener { selectFavorite(btnFoxSports, TELEMUNDO_URL) }
-        btnTudn.setOnClickListener { selectFavorite(btnTudn, TUDN_USA_URL) }
-        btnFoxSports2.setOnClickListener { selectFavorite(btnFoxSports2, FOX_SPORTS_MX_URL) }
-        btnFoxPremium.setOnClickListener { selectFavorite(btnFoxPremium, UNIVISION_URL) }
+        btnForoTv.setOnClickListener { selectFavorite(btnForoTv, FORO_TV_URL) }
+        btnMilenioTv.setOnClickListener { selectFavorite(btnMilenioTv, MILENIO_TV_URL) }
+        btnTelemundo.setOnClickListener { selectFavorite(btnTelemundo, TELEMUNDO_URL) }
+        btnTudnUsa.setOnClickListener { selectFavorite(btnTudnUsa, TUDN_USA_URL) }
+        btnFoxSports.setOnClickListener { selectFavorite(btnFoxSports, FOX_SPORTS_MX_URL) }
+        btnUnivision.setOnClickListener { selectFavorite(btnUnivision, UNIVISION_URL) }
     }
 
     // Filtro de bloqueo de dominios: Bloquea redirecciones maliciosas a páginas externas
@@ -218,6 +216,10 @@ class MainActivity : Activity() {
                 handler?.proceed()
             }
 
+            /**
+             * NÚCLEO DEL BLOQUEADOR — intercepta CADA petición de red.
+             * Cancela todas las descargas de dominios publicitarios de fondo, popups y trackers.
+             */
             override fun shouldInterceptRequest(
                 view: WebView?,
                 request: WebResourceRequest?
